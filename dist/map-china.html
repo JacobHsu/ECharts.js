@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+   <head>
+       <meta charset="utf-8">
+   </head>
+   <body style="height: 100%; margin: 0">
+       <div id="container" style="height: 100%"></div>
+       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
+       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-stat/dist/ecStat.min.js"></script>
+       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/extension/dataTool.min.js"></script>
+       <!--china.json -->
+       <!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/map/js/china.js"></script>-->
+       <script
+        src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous"></script>
+       <script type="text/javascript">
+var dom = document.getElementById("container");
+var myChart = echarts.init(dom);
+var app = {};
+option = null;
+myChart.showLoading();
+// ECharts 轮流高亮中国地图各个省份 https://wdd.js.org/echarts-highlight-china-map.html
+$.get('data/china.json', function (usaJson) {
+    myChart.hideLoading();
+
+    echarts.registerMap('china', usaJson, {
+
+    });
+    option = {
+        title: {
+            text: 'China',
+            subtext: 'Data from www.census.gov',
+            sublink: 'https://wdd.js.org/echarts-highlight-china-map.html',
+            left: 'right'
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: '{b}'
+        },
+        series: [
+            {
+                name: '中国',
+                type: 'map',
+                //roam: true,
+                map: 'china',
+                mapType: 'china',
+                selectedMode : 'single',
+                emphasis: {
+                    normal: {
+                        show: true
+                    },
+                    label: {
+                        show: true
+                    }
+                },
+                data:[
+                    {name:'湖北', selected:true},
+                    {name: '北京', value: 1},
+                    {name: '上海', value: 2},
+                    {name: '广东', value: 3}
+                ],
+                itemStyle: {
+                    normal: {
+                        areaColor: 'rgba(255,255,255,0.5)',
+                        color: '#000000',
+                        shadowBlur: 200,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    },
+                    emphasis:{
+                        areaColor: '#3be2fb',
+                        color: '#000000',
+                        shadowBlur: 200,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+
+    myChart.setOption(option);
+
+    setInterval(function(){
+        var op = myChart.getOption();
+        var data = op.series[0].data;
+
+        var length = data.length;
+
+        data.some(function(item, index){
+            if(item.selected){
+                item.selected = false;
+                var next = (index + 1)%length;
+                data[next].selected = true;
+                return true;
+            }
+        });
+
+        myChart.setOption(op);
+
+    }, 3000);
+});;
+if (option && typeof option === "object") {
+    myChart.setOption(option, true);
+}
+       </script>
+   </body>
+</html>
